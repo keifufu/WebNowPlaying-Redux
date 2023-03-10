@@ -1,6 +1,6 @@
-import { timeInSecondsToString } from '../../utils/misc'
-import { querySelector, querySelectorEventReport, querySelectorReport } from '../../utils/selectors'
-import { RepeatMode, Site, StateMode } from '../content'
+import { timeInSecondsToString } from '../../../utils/misc'
+import { RepeatMode, Site, StateMode } from '../../types'
+import { querySelector, querySelectorEventReport, querySelectorReport } from '../selectors'
 
 let shuffleState = false
 let playlistLoaded = false

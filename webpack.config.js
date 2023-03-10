@@ -2,8 +2,8 @@ const path = require('path')
 
 module.exports = {
   entry: {
-    content: path.resolve(__dirname, 'src/extension/content.ts'),
-    sw: path.resolve(__dirname, 'src/extension/sw.ts')
+    content: path.resolve(__dirname, 'src/extension/content/content.ts'),
+    sw: path.resolve(__dirname, 'src/extension/sw/sw.ts')
   },
   mode: 'production',
   module: {

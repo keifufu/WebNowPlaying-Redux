@@ -1,9 +1,11 @@
-import { RepeatMode, Site, StateMode } from '../content'
+import { RepeatMode, Site, StateMode } from '../../types'
+
+// This is not returned by `getCurrentSite()` yet
 
 const site: Site = {
   ready: () => false,
   info: {
-    player: () => '', // The name of the player
+    player: () => 'Netflix',
     state: () => StateMode.STOPPED,
     title: () => '', // The title of the current song
     artist: () => '', // The artist of the current song

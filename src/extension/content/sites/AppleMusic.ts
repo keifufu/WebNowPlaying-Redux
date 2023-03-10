@@ -1,6 +1,6 @@
-import { getMediaSessionCover, timeInSecondsToString } from '../../utils/misc'
-import { querySelector, querySelectorEventReport, querySelectorReport } from '../../utils/selectors'
-import { RepeatMode, Site, StateMode } from '../content'
+import { getMediaSessionCover, timeInSecondsToString } from '../../../utils/misc'
+import { RepeatMode, Site, StateMode } from '../../types'
+import { querySelector, querySelectorEventReport, querySelectorReport } from '../selectors'
 
 // Repeat and shuffle on Apple Music don't update instantly, we click the button but it takes a few ms for info.repeat() to return the correct value
 

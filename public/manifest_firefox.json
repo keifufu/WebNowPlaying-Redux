@@ -14,7 +14,7 @@
   },
   "content_scripts": [
     {
-      "matches": [ "<all_urls>"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"],
       "all_frames": true
     }
@@ -30,5 +30,8 @@
       "id": "{64b2c525-24ed-4c05-aed1-95ff9e6cef70}",
       "strict_min_version": "109.0"
     }
+  },
+  "content_security_policy": {
+    "extension_pages": "default-src *; script-src 'self'"
   }
 }

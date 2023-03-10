@@ -1,8 +1,8 @@
-import { ServiceWorkerMessage } from '../extension/sw'
+import { ServiceWorkerMessage } from '../extension/sw/messaging'
 import { ContentUtils, defaultSettings, Settings } from './settings'
 
 const _sendSwMessage = (message: ServiceWorkerMessage, defaultValue?: any): Promise<any> => new Promise((resolve) => {
-  if (!window?.chrome?.runtime?.id) {
+  if (typeof chrome === 'undefined' || !chrome.runtime?.id) {
     resolve(defaultValue)
     return
   }
@@ -20,9 +20,7 @@ export const ServiceWorkerUtils = {
     reportCache[report.message] = true
     _sendSwMessage({ event: 'sendAutomaticReport', report })
   },
-  setOutdated: () => _sendSwMessage({ event: 'setOutdated' }),
   resetOutdated: () => _sendSwMessage({ event: 'resetOutdated' }),
-  getGithubVersion: (gh: string) => _sendSwMessage({ event: 'getGithubVersion', gh }),
   getSettings: () => _sendSwMessage({ event: 'getSettings' }, defaultSettings),
   saveSettings: (settings: Settings) => _sendSwMessage({ event: 'saveSettings', settings }),
   setColorScheme: (colorScheme: 'light' | 'dark') => _sendSwMessage({ event: 'setColorScheme', colorScheme })

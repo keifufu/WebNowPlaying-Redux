@@ -1,6 +1,6 @@
-import { getMediaSessionCover } from '../../utils/misc'
-import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../../utils/selectors'
-import { RepeatMode, Site, StateMode } from '../content'
+import { getMediaSessionCover } from '../../../utils/misc'
+import { RepeatMode, Site, StateMode } from '../../types'
+import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
 
 const site: Site = {
   ready: () => navigator.mediaSession.metadata !== null,

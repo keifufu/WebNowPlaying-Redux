@@ -1,4 +1,4 @@
-import { ServiceWorkerUtils } from './sw'
+import { ServiceWorkerUtils } from '../../utils/sw'
 
 const parseSelector = (_selector: string) => {
   let selector = _selector

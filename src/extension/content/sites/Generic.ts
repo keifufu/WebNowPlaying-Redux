@@ -1,6 +1,6 @@
 /* eslint-disable no-loop-func */
-import { capitalize, getMediaSessionCover, timeInSecondsToString } from '../../utils/misc'
-import { RepeatMode, Site, StateMode } from '../content'
+import { capitalize, getMediaSessionCover, timeInSecondsToString } from '../../../utils/misc'
+import { RepeatMode, Site, StateMode } from '../../types'
 
 let isInitialized = false
 let updateInterval: NodeJS.Timeout

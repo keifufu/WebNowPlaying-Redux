@@ -8,10 +8,8 @@ export type CustomAdapter = {
 export type TSupportedSites = 'Apple Music' | 'Bandcamp' | 'Deezer' | 'Pandora' | 'Plex' | 'Soundcloud' | 'Spotify' | 'Tidal' | 'Twitch' | 'Youtube' | 'Youtube Embeds' | 'Youtube Music'
 export const SupportedSites: TSupportedSites[] = ['Apple Music', 'Bandcamp', 'Deezer', 'Pandora', 'Plex', 'Soundcloud', 'Spotify', 'Tidal', 'Twitch', 'Youtube', 'Youtube Embeds', 'Youtube Music']
 
-export const defaultUpdateFrequencyMs = 250
-
 export type Settings = {
-  updateFrequencyMs: Record<number, number>
+  updateFrequencyMs: number
   useGeneric: boolean
   useGenericList: boolean
   isListBlocked: boolean
@@ -23,7 +21,7 @@ export type Settings = {
 }
 
 export const defaultSettings: Settings = {
-  updateFrequencyMs: { },
+  updateFrequencyMs: 250,
   useGeneric: false,
   useGenericList: false,
   isListBlocked: false,

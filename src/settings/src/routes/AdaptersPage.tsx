@@ -1,15 +1,14 @@
 import clsx from 'clsx'
-import { BsCaretRight } from 'solid-icons/bs'
 import { Component, createEffect, createSignal, For, Show } from 'solid-js'
 import { isVersionOutdated } from '../../../utils/misc'
-import { BuiltInAdapters, defaultUpdateFrequencyMs } from '../../../utils/settings'
+import { BuiltInAdapters } from '../../../utils/settings'
 import Anchor from '../components/Anchor'
 import Checkbox from '../components/Checkbox'
 import Hyperlink from '../components/Hyperlink'
 import { useSettings } from '../hooks/useSettings'
 import { useBorderColorClass, useTheme } from '../hooks/useTheme'
 
-const Adapter: Component<{ name: string, enabled: boolean, gh: string, port: number, updateFrequencyMs: number }> = (props) => {
+const Adapter: Component<{ name: string, enabled: boolean, gh: string, port: number }> = (props) => {
   const githubLink = `https://github.com/${props.gh}`
   const releasesLink = `https://github.com/${props.gh}/releases`
   const [version, setVersion] = createSignal('')
@@ -18,7 +17,6 @@ const Adapter: Component<{ name: string, enabled: boolean, gh: string, port: num
   const [githubError, setGithubError] = createSignal(false)
   const { settings, saveSettings } = useSettings()
   const [githubVersion, setGithubVersion] = createSignal('')
-  const [isExpanded, setIsExpanded] = createSignal(false)
   const { theme } = useTheme()
   const borderColorClass = useBorderColorClass()
 
@@ -73,23 +71,11 @@ const Adapter: Component<{ name: string, enabled: boolean, gh: string, port: num
     saveSettings(() => ({ ...settings(), enabledBuiltInAdapters: settings().enabledBuiltInAdapters.includes(props.name) ? settings().enabledBuiltInAdapters.filter((a) => a !== props.name) : [...settings().enabledBuiltInAdapters, props.name] }), true)
   }
 
-  const onInputUpdateFrequency = (e: InputEvent) => {
-    saveSettings(() => ({ ...settings(), updateFrequencyMs: { ...settings().updateFrequencyMs, [props.port]: parseInt((e.target as HTMLInputElement).value) } }), true)
-  }
-
   return (
     <div class={`mb-2 flex w-full flex-col items-center rounded-md border border-solid ${borderColorClass()} p-2`}>
       <div class='flex w-full items-center'>
         <Checkbox onChange={onChange} checked={props.enabled} />
         <Hyperlink text={props.name} link={githubLink} />
-        <BsCaretRight
-          size={12}
-          class={clsx(
-            'ml-2 cursor-pointer transition-transform duration-200',
-            [isExpanded() && 'rotate-90'],
-          )}
-          onClick={() => setIsExpanded(!isExpanded())}
-        />
         <Show when={!isLoading() && !version() && !githubError()}>
           <div
             class={clsx(
@@ -146,26 +132,13 @@ const Adapter: Component<{ name: string, enabled: boolean, gh: string, port: num
           </div>
         </Show>
       </div>
-      <div class={clsx(
-        'w-full overflow-hidden transition-all duration-200 ease-in-out',
-        [isExpanded() && 'h-8'],
-        [!isExpanded() && 'h-0'],
-      )}>
-        Update Frequency (ms):
-        <input
-          onInput={onInputUpdateFrequency}
-          class={`form-input mt-2 ml-2 h-6 w-14 rounded-md border border-solid ${borderColorClass()} bg-transparent px-2 text-sm focus:ring-offset-0`}
-          value={props.updateFrequencyMs}
-        />
-      </div>
     </div>
   )
 }
 
-const CustomAdapter: Component<{ enabled: boolean, port: number, updateFrequencyMs: number }> = (props) => {
+const CustomAdapter: Component<{ enabled: boolean, port: number }> = (props) => {
   const [confirmDelete, setConfirmDelete] = createSignal(false)
   const { settings, saveSettings } = useSettings()
-  const [isExpanded, setIsExpanded] = createSignal(false)
   const { theme } = useTheme()
   const borderColorClass = useBorderColorClass()
 
@@ -187,10 +160,6 @@ const CustomAdapter: Component<{ enabled: boolean, port: number, updateFrequency
     saveSettings(() => ({ ...settings(), customAdapters: settings().customAdapters.map((a) => (a.port === props.port ? { ...a, enabled: !props.enabled } : a)) }), true)
   }
 
-  const onInputUpdateFrequency = (e: InputEvent) => {
-    saveSettings(() => ({ ...settings(), updateFrequencyMs: { ...settings().updateFrequencyMs, [props.port]: parseInt((e.target as HTMLInputElement).value) } }), true)
-  }
-
   return (
     <div class={`mb-2 flex w-full flex-col items-center rounded-md border border-solid ${borderColorClass()} p-2`}>
       <div class='flex w-full items-center'>
@@ -200,14 +169,6 @@ const CustomAdapter: Component<{ enabled: boolean, port: number, updateFrequency
           placeholder='Port'
           class={`form-input ml-2 h-6 w-14 rounded-md border border-solid ${borderColorClass()} bg-transparent px-2 text-sm focus:ring-offset-0`}
           value={props.port === 0 ? '' : props.port}
-        />
-        <BsCaretRight
-          size={12}
-          class={clsx(
-            'ml-2 cursor-pointer transition-transform duration-200',
-            [isExpanded() && 'rotate-90'],
-          )}
-          onClick={() => setIsExpanded(!isExpanded())}
         />
         <div
           class={clsx(
@@ -221,24 +182,19 @@ const CustomAdapter: Component<{ enabled: boolean, port: number, updateFrequency
           {confirmDelete() ? 'Press again to confirm' : 'Remove'}
         </div>
       </div>
-      <div class={clsx(
-        'w-full overflow-hidden transition-all duration-200 ease-in-out',
-        [isExpanded() && 'h-8'],
-        [!isExpanded() && 'h-0'],
-      )}>
-        Update Frequency (ms):
-        <input
-          onInput={onInputUpdateFrequency}
-          class={`form-input mt-2 ml-2 h-6 w-14 rounded-md border border-solid ${borderColorClass()} bg-transparent px-2 text-sm focus:ring-offset-0`}
-          value={props.updateFrequencyMs}
-        />
-      </div>
     </div>
   )
 }
 
 const AdaptersPage: Component = () => {
   const { settings, saveSettings } = useSettings()
+  const borderColorClass = useBorderColorClass()
+
+  const onInputUpdateFrequency = (e: InputEvent) => {
+    const updateFrequencyMs = parseInt((e.target as HTMLInputElement).value)
+    if (isNaN(updateFrequencyMs)) return
+    saveSettings(() => ({ ...settings(), updateFrequencyMs }))
+  }
 
   return (
     <div class='flex h-full w-full flex-col items-center'>
@@ -250,7 +206,6 @@ const AdaptersPage: Component = () => {
               enabled={settings().enabledBuiltInAdapters.includes(adapter.name)}
               gh={adapter.gh}
               port={adapter.port}
-              updateFrequencyMs={settings().updateFrequencyMs[adapter.port] || defaultUpdateFrequencyMs}
             />
           )}
         </For>
@@ -259,7 +214,6 @@ const AdaptersPage: Component = () => {
             <CustomAdapter
               enabled={adapter.enabled}
               port={adapter.port}
-              updateFrequencyMs={settings().updateFrequencyMs[adapter.port] || defaultUpdateFrequencyMs}
             />
           )}
         </For>
@@ -274,7 +228,18 @@ const AdaptersPage: Component = () => {
           />
         </div>
         <div class='ml-16 mt-3'>
-          Want to create or submit your own adapter? Click <Hyperlink text='here' highlight link='https://github.com/keifufu/WebNowPlaying-Redux/blob/main/CreatingAdapters.md'/>!
+        Want to create or submit your own adapter? Click <Hyperlink text='here' highlight link='https://github.com/keifufu/WebNowPlaying-Redux/blob/main/CreatingAdapters.md'/>!
+        </div>
+      </div>
+      <div class='mt-auto w-full'>
+        <div class={`-mx-3 w-[111%] border-t border-solid ${borderColorClass()}`} />
+        <div class='flex'>
+          <div class='mt-1.5'>Update Frequency (ms):</div>
+          <input
+            onInput={onInputUpdateFrequency}
+            class={`form-input mt-2 ml-2 h-6 w-14 rounded-md border border-solid ${borderColorClass()} bg-transparent px-2 text-sm focus:ring-offset-0`}
+            value={settings().updateFrequencyMs}
+          />
         </div>
       </div>
     </div>
