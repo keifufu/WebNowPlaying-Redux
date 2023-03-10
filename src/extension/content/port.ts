@@ -126,7 +126,3 @@ function OnMediaEventRev1(message: string): keyof SiteInfo | null {
 
   return updateInfo
 }
-
-window.addEventListener('beforeunload', () => {
-  port?.postMessage({ event: 'disconnect' })
-})

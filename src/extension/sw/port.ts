@@ -13,6 +13,7 @@ const sockets: WNPReduxWebSocket[] = []
 const mediaInfoDictionary = new Map<string, MediaInfo>()
 let mediaInfoId: string | null = null
 const ports = new Map<string, chrome.runtime.Port>()
+const disconnectTimeouts = new Map<string, NodeJS.Timeout>()
 
 const updateAll = () => {
   sockets.forEach((socket) => {
@@ -61,12 +62,19 @@ interface Port extends chrome.runtime.Port {
 
 chrome.runtime.onConnect.addListener((_port) => {
   const port = _port as Port
+  clearTimeout(disconnectTimeouts.get(port.name))
+  disconnectTimeouts.delete(port.name)
   caches.set(port.name, new Map<string, any>())
   ports.set(port.name, port)
   port.onMessage.addListener((message) => onMessage(message, port))
   port.onDisconnect.addListener(() => {
     deleteTimer(port)
     ports.delete(port.name)
+    disconnectTimeouts.set(port.name, setTimeout(() => {
+      mediaInfoDictionary.delete(port.name)
+      caches.delete(port.name)
+      updateMediaInfo()
+    }, 1000))
   })
   port._timer = setTimeout(() => {
     deleteTimer(port)
@@ -105,6 +113,7 @@ function onMessage(message: PortMessage, port: Port) {
       break
     }
     case 'disconnect':
+      console.log('disconnect')
       mediaInfoDictionary.delete(port.name)
       caches.delete(port.name)
       updateMediaInfo()
