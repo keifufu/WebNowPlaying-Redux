@@ -31,6 +31,12 @@ Firefox: [Mozilla Addon Store](https://addons.mozilla.org/en-US/firefox/addon/we
 Chrome: [Chrome Web Store](https://chrome.google.com/webstore/detail/webnowplaying-redux/jfakgfcdgpghbbefmdfjkbdlibjgnbli)  
 Edge, Opera, etc. also use the Chrome Web Store
 
+**Note:** Due to a bug in firefox, you will have to manually grant it permissions.  
+Right click "WebNowPlaying Redux" > Manage Extension > Permissions > Access your data for all websites
+
+## Troubleshooting
+View the wiki page [here](https://github.com/keifufu/WebNowPlaying-Redux/wiki/Troubleshooting)
+
 ## TODO
 - Section skipping on Youtube
 - Netflix support
@@ -42,5 +48,3 @@ Edge, Opera, etc. also use the Chrome Web Store
 - Run `pnpm i`
 - Run `pnpm run build`
 - The output will be in /dist
-
-TODO: prevent generic script from opening a websocket until it finds metadata
