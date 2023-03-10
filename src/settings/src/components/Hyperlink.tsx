@@ -6,11 +6,12 @@ function openTab(url: string) {
   else window.open(url)
 }
 
-const Hyperlink: Component<{ link: string, text: string, highlight?: boolean }> = (props) => (
+const Hyperlink: Component<{ link: string, text: string, highlight?: boolean, class?: string }> = (props) => (
   <Anchor
     text={props.text}
     highlight={props.highlight}
     link={props.link}
+    class={props.class}
     onClick={(e) => {
       e.preventDefault()
       openTab(props.link)
