@@ -121,6 +121,7 @@ export class WNPReduxWebSocket {
 
 function SendMediaInfoRev1(self: WNPReduxWebSocket, mediaInfo: MediaInfo) {
   for (const key in mediaInfo) {
+    if (key === 'timestamp') return
     const value = mediaInfo[key as keyof MediaInfo]
     // Check for null, and not just falsy, because 0 and '' are falsy
     if (value !== null && value !== self.cache[key]) {
@@ -132,6 +133,7 @@ function SendMediaInfoRev1(self: WNPReduxWebSocket, mediaInfo: MediaInfo) {
 
 function SendMediaInfoLegacy(self: WNPReduxWebSocket, mediaInfo: MediaInfo) {
   for (const key in mediaInfo) {
+    if (key === 'timestamp') return
     let value = mediaInfo[key as keyof MediaInfo]
 
     // Conversion to legacy values
