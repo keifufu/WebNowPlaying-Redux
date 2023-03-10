@@ -35,19 +35,39 @@ export const defaultSettings: Settings = {
 export type Adapter = {
   name: string,
   port: number,
-  gh: string
+  gh: string,
+  authors: {
+    name: string,
+    link: string
+  }[]
 }
 
 export const BuiltInAdapters: Adapter[] = [
   {
     name: 'Rainmeter Adapter',
     port: 8974,
-    gh: 'keifufu/WebNowPlaying-Redux-Rainmeter'
+    gh: 'keifufu/WebNowPlaying-Redux-Rainmeter',
+    authors: [
+      {
+        name: 'keifufu',
+        link: 'https://github.com/keifufu'
+      },
+      {
+        name: 'tjhrulz',
+        link: 'https://github.com/tjhrulz'
+      }
+    ]
   },
   {
     name: 'Macro Deck Adapter',
     port: 8698,
-    gh: 'jbcarreon123/WebNowPlaying-Redux-Macro-Deck'
+    gh: 'jbcarreon123/WebNowPlaying-Redux-Macro-Deck',
+    authors: [
+      {
+        name: 'jbcarreon123',
+        link: 'https://github.com/jbcarreon123'
+      }
+    ]
   }
 ]
 
