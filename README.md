@@ -12,6 +12,7 @@ This information can be utilized by external adapters to manage the media, inclu
 - Apple Music
 - Bandcamp
 - Deezer
+- Navidrome
 - Pandora
 - Plex
 - SoundCloud
