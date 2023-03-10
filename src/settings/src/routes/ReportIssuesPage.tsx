@@ -89,7 +89,7 @@ const ReportIssuesPage: Component = () => {
         This will help us improve the extension by sending information about sites that appear to not be working properly. This information will be sent anonymously and will not contain any personal information.
         <br />
         <br />
-        The following information will be sent: What data type failed (but not the data itself), what site was being used (but not the URL), and extension version
+        The following information will be sent: What data type failed ("artist", "title", etc), the site ("YouTube", "Spotify", etc), and extension version
       </div>
     </div>
   )
