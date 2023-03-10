@@ -59,3 +59,11 @@ export const getExtensionVersion = () => {
   if (typeof chrome !== 'undefined' && typeof chrome.runtime?.getManifest === 'function') return chrome.runtime.getManifest().version
   else return '0.0.0'
 }
+
+export const getRandomToken = (length = 24) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++)
+    result += characters.charAt(Math.floor(Math.random() * characters.length))
+  return result
+}
