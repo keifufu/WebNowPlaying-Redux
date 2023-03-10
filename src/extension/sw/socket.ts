@@ -6,7 +6,7 @@ import { getGithubVersion, setOutdated } from './shared'
 export class WNPReduxWebSocket {
   _ws: WebSocket | null = null
   _adapter: Adapter | CustomAdapter
-  cache: { [key: string]: any } = {}
+  cache = new Map<string, any>()
   reconnectCount = 0
   communicationRevision: string | null = null
   connectionTimeout: NodeJS.Timeout | null = null
@@ -31,7 +31,7 @@ export class WNPReduxWebSocket {
   }
 
   public close() {
-    this.cache = {}
+    this.cache = new Map<string, any>()
     this.communicationRevision = null
     if (this.connectionTimeout) clearTimeout(this.connectionTimeout)
     if (this._ws) {
@@ -124,9 +124,9 @@ function SendMediaInfoRev1(self: WNPReduxWebSocket, mediaInfo: MediaInfo) {
     if (key === 'timestamp') return
     const value = mediaInfo[key as keyof MediaInfo]
     // Check for null, and not just falsy, because 0 and '' are falsy
-    if (value !== null && value !== self.cache[key]) {
+    if (value !== null && value !== self.cache.get(key)) {
       self.send(`${key.toUpperCase()} ${value}`)
-      self.cache[key] = value
+      self.cache.set(key, value)
     }
   }
 }
@@ -145,9 +145,9 @@ function SendMediaInfoLegacy(self: WNPReduxWebSocket, mediaInfo: MediaInfo) {
       value = value ? 1 : 0
 
     // Check for null, and not just falsy, because 0 and '' are falsy
-    if (value !== null && value !== self.cache[key]) {
+    if (value !== null && value !== self.cache.get(key)) {
       self.send(`${key.toUpperCase()}:${value}`)
-      self.cache[key] = value
+      self.cache.set(key, value)
     }
   }
 }

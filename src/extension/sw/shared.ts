@@ -24,13 +24,14 @@ export const readSettings = (): Promise<Settings> => new Promise((resolve) => {
   }
 })
 
-const ghCache: Record<string, string> = {}
+const ghCache = new Map<string, string>()
 export const getGithubVersion = (gh: string): Promise<string> => new Promise(async (resolve) => {
-  if (ghCache[gh]) {
-    resolve(ghCache[gh])
+  const cachedResult = ghCache.get(gh)
+  if (cachedResult) {
+    resolve(cachedResult)
   } else {
     const version = await getVersionFromGithub(gh)
-    if (version !== 'Error') ghCache[gh] = version
+    if (version !== 'Error') ghCache.set(gh, version)
     resolve(version)
   }
 })

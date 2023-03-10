@@ -10,13 +10,13 @@ export type ServiceWorkerMessage = {
 }
 
 let saveTimeout: NodeJS.Timeout
-const reportCache: Record<string, string> = {}
+const reportCache = new Map<string, boolean>()
 export const MessageHandler = async (request: ServiceWorkerMessage, sendResponse: (response?: any) => void) => {
   switch (request.event) {
     case 'sendAutomaticReport': {
       // We only send 'sendAutomaticReport' if telemetry is enabled, no need to check here
-      if (!request.report || reportCache[request.report.message]) return
-      reportCache[request.report.message] = request.report.message
+      if (!request.report || reportCache.get(request.report.message)) return
+      reportCache.set(request.report.message, true)
       fetch('https://keifufu.dev/report', {
         method: 'POST',
         body: JSON.stringify({
