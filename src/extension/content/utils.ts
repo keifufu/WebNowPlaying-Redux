@@ -4,6 +4,7 @@ import Applemusic from './sites/AppleMusic'
 import Bandcamp from './sites/Bandcamp'
 import Deezer from './sites/Deezer'
 import Generic from './sites/Generic'
+import Navidrome from './sites/Navidrome'
 import Pandora from './sites/Pandora'
 import Plex from './sites/Plex'
 import Soundcloud from './sites/Soundcloud'
@@ -28,6 +29,8 @@ export function getCurrentSite() {
     return Bandcamp
   else if (host === 'www.deezer.com' && !settings.disabledSites.includes('Deezer'))
     return Deezer
+  else if (document.querySelector('[content="Navidrome"]') !== null && !settings.disabledSites.includes('Navidrome'))
+    return Navidrome
   else if (host === 'www.pandora.com' && !settings.disabledSites.includes('Pandora'))
     return Pandora
   else if (host === 'app.plex.tv' && !settings.disabledSites.includes('Plex'))
