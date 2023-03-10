@@ -102,7 +102,7 @@ const Adapter: Component<{ adapter: TAdapter, enabled: boolean }> = (props) => {
         <Show when={!isLoading() && !version() && !githubError()}>
           <div
             class={clsx(
-              'ml-auto cursor-pointer hover:underline',
+              '-mt-0.5 ml-auto cursor-pointer hover:underline',
               [theme() === 'dark' && 'text-cyan-500'],
               [theme() === 'light' && 'text-cyan-700'],
               [theme() === 'konami' && 'text-cyan-300']
@@ -113,12 +113,12 @@ const Adapter: Component<{ adapter: TAdapter, enabled: boolean }> = (props) => {
           </div>
         </Show>
         <Show when={isLoading()}>
-          <div class='ml-auto'>...</div>
+          <div class='-mt-0.5 ml-auto'>...</div>
         </Show>
         <Show when={!isLoading() && version() && !isOutdated() && !githubError()}>
           <div
             class={clsx(
-              'ml-auto',
+              '-mt-0.5 ml-auto',
               [theme() === 'dark' && version() === 'Error' && 'text-red-400'],
               [theme() === 'light' && version() === 'Error' && 'text-red-600'],
               [theme() === 'konami' && version() === 'Error' && 'text-red-400'],
@@ -133,7 +133,7 @@ const Adapter: Component<{ adapter: TAdapter, enabled: boolean }> = (props) => {
         <Show when={!isLoading() && githubError()}>
           <div
             class={clsx(
-              'ml-auto',
+              '-mt-0.5 ml-auto',
               [theme() === 'dark' && 'text-red-400'],
               [theme() === 'light' && 'text-red-600'],
               [theme() === 'konami' && 'text-red-400']
@@ -145,7 +145,7 @@ const Adapter: Component<{ adapter: TAdapter, enabled: boolean }> = (props) => {
         <Show when={!isLoading() && isOutdated()}>
           <div
             class={clsx(
-              'ml-auto',
+              '-mt-0.5 ml-auto',
               [theme() === 'dark' && 'text-red-400'],
               [theme() === 'light' && 'text-red-600'],
               [theme() === 'konami' && 'text-red-400']
@@ -195,7 +195,7 @@ const CustomAdapter: Component<{ enabled: boolean, port: number }> = (props) => 
         />
         <div
           class={clsx(
-            'ml-auto cursor-pointer hover:underline',
+            '-mt-0.5 ml-auto cursor-pointer hover:underline',
             [theme() === 'dark' && 'text-cyan-500'],
             [theme() === 'light' && 'text-cyan-700'],
             [theme() === 'konami' && 'text-cyan-300']

@@ -27,6 +27,7 @@ const Checkbox: Component<{ label?: string, children?: any, text?: string, bigTe
         <label
           for={props.text}
           class={clsx(
+            '-mt-0.5',
             [!props.bigText && 'text-[0.9rem]'],
             [props.disabled && 'opacity-50'],
             [!props.disabled && 'cursor-pointer']
