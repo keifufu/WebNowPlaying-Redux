@@ -4,7 +4,7 @@ import { readSettings } from './shared'
 import { WNPReduxWebSocket } from './socket'
 
 type PortMessage = {
-  event: 'mediaInfo' | 'disconnect',
+  event: 'mediaInfo',
   mediaInfo?: Partial<MediaInfo>
 }
 
@@ -112,12 +112,6 @@ function onMessage(message: PortMessage, port: Port) {
       updateAll()
       break
     }
-    case 'disconnect':
-      console.log('disconnect')
-      mediaInfoDictionary.delete(port.name)
-      caches.delete(port.name)
-      updateMediaInfo()
-      break
     default: break
   }
 }
