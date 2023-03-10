@@ -8,7 +8,7 @@ type PortMessage = {
   mediaInfo?: Partial<MediaInfo>
 }
 
-const cache: Record<string, Record<string, any>> = {}
+const caches = new Map<string, Map<string, any>>()
 const sockets: WNPReduxWebSocket[] = []
 const mediaInfoDictionary = new Map<string, MediaInfo>()
 let mediaInfoId: string | null = null
@@ -33,11 +33,11 @@ const executeEvent = (communicationRevision: string, mediaEventData: string) => 
 }
 
 const updateMediaInfo = () => {
-  const sortedDictionary = new Map([...mediaInfoDictionary.entries()].sort((a, b) => b[1].timestamp - a[1].timestamp))
+  const sortedDictionary = new Map([...mediaInfoDictionary].sort((a, b) => b[1].timestamp - a[1].timestamp))
   let suitableMatch = false
 
-  for (const [key, value] of sortedDictionary.entries()) {
-    if (value.state === StateMode.PLAYING && value.volume >= 1) {
+  for (const [key, value] of sortedDictionary) {
+    if (value.state === StateMode.PLAYING) {
       mediaInfoId = key
       suitableMatch = true
       break
@@ -45,7 +45,7 @@ const updateMediaInfo = () => {
   }
 
   if (!suitableMatch) {
-    const fallback = Array.from(sortedDictionary)[0]
+    const fallback = sortedDictionary.size > 0 ? sortedDictionary.entries().next().value : null
     if (fallback) {
       mediaInfoId = fallback[0]
       return
@@ -61,7 +61,7 @@ interface Port extends chrome.runtime.Port {
 
 chrome.runtime.onConnect.addListener((_port) => {
   const port = _port as Port
-  cache[port.name] = {}
+  caches.set(port.name, new Map<string, any>())
   ports.set(port.name, port)
   port.onMessage.addListener((message) => onMessage(message, port))
   port.onDisconnect.addListener(() => {
@@ -77,25 +77,26 @@ chrome.runtime.onConnect.addListener((_port) => {
 function onMessage(message: PortMessage, port: Port) {
   switch (message.event) {
     case 'mediaInfo': {
-      if (!message.mediaInfo || !cache[port.name]) return
+      const cache = caches.get(port.name)
+      if (!message.mediaInfo || !cache) return
 
-      let currentMediaInfo = defaultMediaInfo
-      if (mediaInfoDictionary.get(port.name)) currentMediaInfo = mediaInfoDictionary.get(port.name) as MediaInfo
+      let currentMediaInfo = mediaInfoDictionary.get(port.name)
+      if (!currentMediaInfo) currentMediaInfo = defaultMediaInfo
 
       let timestamp = currentMediaInfo.timestamp
       for (const _key in message.mediaInfo) {
         const key = _key as keyof MediaInfo
-        if (['state', 'title', 'volume'].includes(key)) {
-          if (cache[port.name][key] !== message.mediaInfo[key]) {
-            cache[port.name][key] = message.mediaInfo[key]
+        if (key === 'state' || key === 'title' || key === 'volume') {
+          if (cache.get(key) !== message.mediaInfo[key]) {
+            cache.set(key, message.mediaInfo[key])
             timestamp = Date.now()
           }
         }
       }
       mediaInfoDictionary.set(port.name, { ...currentMediaInfo, ...message.mediaInfo, timestamp })
 
-      if (cache[port.name].position !== message.mediaInfo.position) {
-        cache[port.name].position = message.mediaInfo.position
+      if (message.mediaInfo.position && message.mediaInfo.position !== cache.get('position')) {
+        cache.set('position', message.mediaInfo.position)
         if (currentMediaInfo.title !== '')
           updateMediaInfo()
       }
@@ -105,7 +106,7 @@ function onMessage(message: PortMessage, port: Port) {
     }
     case 'disconnect':
       mediaInfoDictionary.delete(port.name)
-      delete cache[port.name]
+      caches.delete(port.name)
       updateMediaInfo()
       break
     default: break
@@ -131,8 +132,7 @@ export const initPort = async () => {
   })
 
   setInterval(() => {
-    Array.from(ports.entries()).forEach(([key, port]) => {
+    for (const port of ports.values())
       port.postMessage({ event: 'getMediaInfo' })
-    })
   }, settings.updateFrequencyMs)
 }
