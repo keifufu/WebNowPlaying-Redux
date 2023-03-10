@@ -27,12 +27,15 @@ type PortMessage = {
 
 function onMessage(message: PortMessage, port: chrome.runtime.Port) {
   switch (message.event) {
-    case 'getMediaInfo':
+    case 'getMediaInfo': {
+      const mediaInfo = getMediaInfo()
+      if (!mediaInfo) return
       port.postMessage({
         event: 'mediaInfo',
-        mediaInfo: getMediaInfo()
+        mediaInfo: mediaInfo
       })
       break
+    }
     case 'executeMediaEvent':
       if (!message.communicationRevision || !message.mediaEventData) return
       switch (message.communicationRevision) {

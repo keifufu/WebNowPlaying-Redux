@@ -62,9 +62,10 @@ export function getCurrentSite() {
 
 let mediaInfoCache = new Map<string, any>()
 export const clearMediaInfoCache = () => mediaInfoCache = new Map<string, any>()
-export const getMediaInfo = () => {
+export const getMediaInfo = (): Partial<MediaInfo> | null => {
   const site = getCurrentSite()
   const mediaInfo: Partial<MediaInfo> = {}
+  let mediaInfoChanged = false
 
   if (!site || !site.ready()) return mediaInfo
 
@@ -80,8 +81,10 @@ export const getMediaInfo = () => {
     if (value !== null && value !== undefined && mediaInfoCache.get(key) !== value) {
       (mediaInfo[key] as any) = value
       mediaInfoCache.set(key, value)
+      mediaInfoChanged = true
     }
   })
 
-  return mediaInfo
+  if (mediaInfoChanged) return mediaInfo
+  else return null
 }
