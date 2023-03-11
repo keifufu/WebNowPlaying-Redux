@@ -1,5 +1,6 @@
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 let lastKnownVolume = 100
 
@@ -136,12 +137,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEventReport<HTMLButtonElement>('#playbackControlBar button', (el) => el.click(), 'toggleShuffle'),
     toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('#footerPlayer .favorite-button', (el) => el.click(), 'toggleThumbsDown'),
     toggleThumbsDown: null,
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() === 5)
-        site.events.toggleThumbsUp?.()
-    }
+    setRating: (rating: number) => ratingUtils.like(site, rating)
   }
 }
 

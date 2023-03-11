@@ -1,5 +1,5 @@
 import { ContentUtils } from '../../utils/settings'
-import { MediaInfo, SiteInfo } from '../types'
+import { MediaInfo, Site, SiteInfo } from '../types'
 import Applemusic from './sites/AppleMusic'
 import Bandcamp from './sites/Bandcamp'
 import Deezer from './sites/Deezer'
@@ -87,4 +87,19 @@ export const getMediaInfo = (): Partial<MediaInfo> | null => {
 
   if (mediaInfoChanged) return mediaInfo
   else return null
+}
+
+export const ratingUtils = {
+  like: (site: Site, rating: number) => {
+    if (rating >= 3 && site.info.rating?.() !== 5)
+      site.events.toggleThumbsUp?.()
+    else if (rating < 3 && site.info.rating?.() === 5)
+      site.events.toggleThumbsUp?.()
+  },
+  likeDislike: (site: Site, rating: number) => {
+    if (rating >= 3 && site.info.rating?.() !== 5)
+      site.events.toggleThumbsUp?.()
+    else if (rating < 3 && site.info.rating?.() !== 1)
+      site.events.toggleThumbsDown?.()
+  }
 }

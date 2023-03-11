@@ -1,5 +1,6 @@
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 let currentCoverUrl = ''
 let lastCoverVideoId = ''
@@ -120,12 +121,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEventReport<HTMLButtonElement>('.shuffle', (el) => el.click(), 'toggleShuffle'),
     toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('(.middle-controls-buttons button)[1]', (el) => el.click(), 'toggleThumbsUp'),
     toggleThumbsDown: () => querySelectorEventReport<HTMLButtonElement>('.middle-controls-buttons button', (el) => el.click(), 'toggleThumbsDown'),
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() !== 1)
-        site.events.toggleThumbsDown?.()
-    }
+    setRating: (rating: number) => ratingUtils.likeDislike(site, rating)
   }
 }
 

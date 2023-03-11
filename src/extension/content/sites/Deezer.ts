@@ -1,6 +1,7 @@
 import { getMediaSessionCover } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 // Not reporting duration, position and rating as it seems they disappear once deezer annoys you with its ads
 
@@ -51,12 +52,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEventReport<HTMLButtonElement>('(.option-item button)[2]', (el) => el.click(), 'toggleShuffle'),
     toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('(.track-actions button)[2]', (el) => el.click(), 'toggleThumbsUp'),
     toggleThumbsDown: null,
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() === 5)
-        site.events.toggleThumbsUp?.()
-    }
+    setRating: (rating: number) => ratingUtils.like(site, rating)
   }
 }
 

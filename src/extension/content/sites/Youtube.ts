@@ -1,6 +1,7 @@
 import { timeInSecondsToString } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 // TODO: support the tiny player it sometimes gives you in the bottom right corner
 
@@ -92,12 +93,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEvent<HTMLButtonElement>('(#playlist-action-menu button)[1]', (el) => el.click()),
     toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('#segmented-like-button button', (el) => el.click(), 'toggleThumbsUp'),
     toggleThumbsDown: () => querySelectorEventReport<HTMLButtonElement>('#segmented-dislike-button button', (el) => el.click(), 'toggleThumbsDown'),
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() !== 1)
-        site.events.toggleThumbsDown?.()
-    }
+    setRating: (rating: number) => ratingUtils.likeDislike(site, rating)
   }
 }
 

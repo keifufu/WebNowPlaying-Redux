@@ -1,6 +1,7 @@
 import { capitalize } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 const site: Site = {
   ready: () =>
@@ -78,12 +79,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEvent<HTMLButtonElement>('.ShuffleButton', (el) => el.click()),
     toggleThumbsUp: () => querySelectorEvent<HTMLButtonElement>('.ThumbUpButton', (el) => el.click()),
     toggleThumbsDown: () => querySelectorEvent<HTMLButtonElement>('.ThumbDownButton', (el) => el.click()),
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() !== 1)
-        site.events.toggleThumbsDown?.()
-    }
+    setRating: (rating: number) => ratingUtils.likeDislike(site, rating)
   }
 }
 

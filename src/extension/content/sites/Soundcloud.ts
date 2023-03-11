@@ -1,6 +1,7 @@
 import { getMediaSessionCover } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
+import { ratingUtils } from '../utils'
 
 const site: Site = {
   ready: () => navigator.mediaSession.metadata !== null,
@@ -116,12 +117,7 @@ const site: Site = {
     toggleShuffle: () => querySelectorEventReport<HTMLButtonElement>('.shuffleControl', (el) => el.click(), 'toggleShuffle'),
     toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('.playbackSoundBadge__like', (el) => el.click(), 'toggleThumbsUp'),
     toggleThumbsDown: null,
-    setRating: (rating: number) => {
-      if (rating >= 3 && site.info.rating?.() !== 5)
-        site.events.toggleThumbsUp?.()
-      else if (rating < 3 && site.info.rating?.() === 5)
-        site.events.toggleThumbsUp?.()
-    }
+    setRating: (rating: number) => ratingUtils.like(site, rating)
   }
 }
 
