@@ -38,7 +38,7 @@ const updateMediaInfo = () => {
   let suitableMatch = false
 
   for (const [key, value] of sortedDictionary) {
-    if (value.state === StateMode.PLAYING) {
+    if (value.state === StateMode.PLAYING && value.volume >= 0) {
       mediaInfoId = key
       suitableMatch = true
       break
@@ -88,9 +88,7 @@ function onMessage(message: PortMessage, port: Port) {
       const cache = caches.get(port.name)
       if (!message.mediaInfo || !cache) return
 
-      let currentMediaInfo = mediaInfoDictionary.get(port.name)
-      if (!currentMediaInfo) currentMediaInfo = defaultMediaInfo
-
+      const currentMediaInfo = mediaInfoDictionary.get(port.name) ?? defaultMediaInfo
       let timestamp = currentMediaInfo.timestamp
       for (const _key in message.mediaInfo) {
         const key = _key as keyof MediaInfo
