@@ -83,7 +83,8 @@ const ReportIssuesPage: Component = () => {
       <div class={`-mx-3 my-2 w-[111%] border-t border-solid ${borderColorClass()}`} />
       <Checkbox text='Automatically report when sites appear broken' checked={settings().useTelemetry} onChange={onChange} />
       <div class={clsx(
-        'mt-2 text-sm text-gray-500',
+        'mt-2 text-sm',
+        [theme() !== 'konami' && 'text-gray-500'],
         [theme() === 'konami' && 'text-gray-300']
       )}>
         This will help us improve the extension by sending information about sites that appear to not be working properly. This information will be sent anonymously and will not contain any personal information.
