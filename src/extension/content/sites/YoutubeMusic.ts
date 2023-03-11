@@ -1,55 +1,21 @@
+import { getMediaSessionCover } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
 import { ratingUtils } from '../utils'
-
-let currentCoverUrl = ''
-let lastCoverVideoId = ''
 
 // I'm not using mediaSession here because of ads.
 // Of course this isn't an issue with YouTube Premium or adblock, but still.
 const site: Site = {
   ready: () =>
-    querySelector<boolean, HTMLElement>('video', (el) => true, false)
-    && querySelector<boolean, HTMLElement>('.title.ytmusic-player-bar', (el) => el.innerText.length > 0, false),
+    navigator.mediaSession.metadata !== null
+    && querySelector<boolean, HTMLElement>('video', (el) => true, false),
   info: {
     player: () => 'Youtube Music',
     state: () => querySelectorReport<StateMode, HTMLVideoElement>('video', (el) => (el.paused ? StateMode.PAUSED : StateMode.PLAYING), StateMode.PAUSED, 'state'),
-    title: () => querySelectorReport<string, HTMLElement>('.title.ytmusic-player-bar', (el) => el.innerText, '', 'title'),
-    artist: () => querySelectorReport<string, HTMLElement>('.byline.ytmusic-player-bar a', (el) => el.innerText, '', 'artist'),
-    // There isn't always a album, so I'm not reporting it
-    album: () => querySelector<string, HTMLElement>('(.byline.ytmusic-player-bar a)[1]', (el) => el.innerText, ''),
-    cover: () => {
-      let videoId = lastCoverVideoId
-
-      let cover = querySelector<string, HTMLImageElement>('.thumbnail.ytmusic-player.no-transition .yt-img-shadow', (el) => el.src, '')
-      if (cover.includes('googleusercontent')) return cover
-      if (cover.includes('data:image'))
-        cover = querySelector<string, HTMLImageElement>('.image.ytmusic-player-bar', (el) => el.src, '')
-
-      videoId = cover.split('vi/')[1].split('/')[0]
-
-      if (!videoId) {
-        const v = new URLSearchParams(window.location.search).get('v')
-        if (v) videoId = v
-      }
-
-      if (videoId && lastCoverVideoId !== videoId) {
-        lastCoverVideoId = videoId
-        const img = document.createElement('img')
-        img.setAttribute('src', `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`)
-        img.addEventListener('load', () => {
-          if (img.height > 90)
-            currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`
-          else
-            currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
-        })
-        img.addEventListener('error', () => {
-          currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
-        })
-      }
-
-      return currentCoverUrl
-    },
+    title: () => navigator.mediaSession.metadata?.title || '',
+    artist: () => navigator.mediaSession.metadata?.artist || '',
+    album: () => navigator.mediaSession.metadata?.album || '',
+    cover: () => getMediaSessionCover(),
     duration: () => querySelectorReport<string, HTMLElement>('.time-info.ytmusic-player-bar', (el) => el.innerText.split(' / ')[1], '0:00', 'duration'),
     position: () => querySelectorReport<string, HTMLElement>('.time-info.ytmusic-player-bar', (el) => el.innerText.split(' / ')[0], '0:00', 'position'),
     volume: () => querySelectorReport<number, HTMLVideoElement>('video', (el) => (el.muted ? 0 : el.volume * 100), 100, 'volume'),
@@ -95,24 +61,24 @@ const site: Site = {
         }))
       }, 'setPositionPercentage')
     },
+    // This isn't entirely accurate, but it's good enough.
     setVolume: (volume: number) => {
-      let vol = volume / 100
       querySelectorEvent<HTMLElement>('#sliderBar', (el) => {
         const loc = el.getBoundingClientRect()
-        vol *= loc.width
+        const vol = (volume / 98) * loc.width
 
         el.dispatchEvent(new MouseEvent('mousedown', {
           view: window,
           bubbles: true,
           cancelable: true,
-          clientX: loc.left + vol,
+          clientX: loc.left + vol + 1,
           clientY: loc.bottom + (loc.height / 2)
         }))
         el.dispatchEvent(new MouseEvent('mouseup', {
           view: window,
           bubbles: true,
           cancelable: true,
-          clientX: loc.left + vol,
+          clientX: loc.left + vol + 1,
           clientY: loc.bottom + (loc.height / 2)
         }))
       })
@@ -126,3 +92,45 @@ const site: Site = {
 }
 
 export default site
+
+// What I used before just giving in to mediaSession
+
+// const currentCoverUrl = ''
+// const lastCoverVideoId = ''
+
+/* title: () => querySelectorReport<string, HTMLElement>('.title.ytmusic-player-bar', (el) => el.innerText, '', 'title'),
+artist: () => querySelectorReport<string, HTMLElement>('.byline.ytmusic-player-bar > *', (el) => el.innerText, '', 'artist'),
+// There isn't always a album, so I'm not reporting it
+album: () => querySelector<string, HTMLElement>('(.byline.ytmusic-player-bar a)[1]', (el) => el.innerText, ''),
+cover: () => {
+  let videoId = lastCoverVideoId
+
+  let cover = querySelector<string, HTMLImageElement>('.thumbnail.ytmusic-player.no-transition .yt-img-shadow', (el) => el.src, '')
+  if (cover.includes('googleusercontent')) return cover
+  if (cover.includes('data:image'))
+    cover = querySelector<string, HTMLImageElement>('.image.ytmusic-player-bar', (el) => el.src, '')
+
+  videoId = cover.split('vi/')[1].split('/')[0]
+
+  if (!videoId) {
+    const v = new URLSearchParams(window.location.search).get('v')
+    if (v) videoId = v
+  }
+
+  if (videoId && lastCoverVideoId !== videoId) {
+    lastCoverVideoId = videoId
+    const img = document.createElement('img')
+    img.setAttribute('src', `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`)
+    img.addEventListener('load', () => {
+      if (img.height > 90)
+        currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`
+      else
+        currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
+    })
+    img.addEventListener('error', () => {
+      currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
+    })
+  }
+
+  return currentCoverUrl
+}, */
