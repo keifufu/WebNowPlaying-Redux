@@ -38,7 +38,7 @@ const updateMediaInfo = () => {
   let suitableMatch = false
 
   for (const [key, value] of sortedDictionary) {
-    if (value.state === StateMode.PLAYING && value.volume >= 0) {
+    if (value.state === StateMode.PLAYING && value.volume !== 0) {
       mediaInfoId = key
       suitableMatch = true
       break
