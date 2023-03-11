@@ -4,8 +4,8 @@ import { MediaInfo, RepeatMode, StateMode } from '../types'
 import { getGithubVersion, setOutdated } from './shared'
 
 export class WNPReduxWebSocket {
-  _ws: WebSocket | null = null
-  _adapter: Adapter | CustomAdapter
+  ws: WebSocket | null = null
+  adapter: Adapter | CustomAdapter
   cache = new Map<string, any>()
   reconnectCount = 0
   communicationRevision: string | null = null
@@ -13,18 +13,18 @@ export class WNPReduxWebSocket {
   executeEvent: (communicationRevision: string, data: string) => void
 
   constructor(adapter: Adapter | CustomAdapter, executeEvent: (communicationRevision: string, data: string) => void) {
-    this._adapter = adapter
+    this.adapter = adapter
     this.executeEvent = executeEvent
     this.init()
   }
 
   private init() {
     try {
-      this._ws = new WebSocket(`ws://localhost:${this._adapter.port}`)
-      this._ws.onopen = this.onOpen.bind(this)
-      this._ws.onclose = this.onClose.bind(this)
-      this._ws.onerror = this.onError.bind(this)
-      this._ws.onmessage = this.onMessage.bind(this)
+      this.ws = new WebSocket(`ws://localhost:${this.adapter.port}`)
+      this.ws.onopen = this.onOpen.bind(this)
+      this.ws.onclose = this.onClose.bind(this)
+      this.ws.onerror = this.onError.bind(this)
+      this.ws.onmessage = this.onMessage.bind(this)
     } catch {
       this.retry()
     }
@@ -34,9 +34,9 @@ export class WNPReduxWebSocket {
     this.cache = new Map<string, any>()
     this.communicationRevision = null
     if (this.connectionTimeout) clearTimeout(this.connectionTimeout)
-    if (this._ws) {
-      this._ws.onclose = null
-      this._ws.close()
+    if (this.ws) {
+      this.ws.onclose = null
+      this.ws.close()
     }
   }
 
@@ -50,8 +50,8 @@ export class WNPReduxWebSocket {
   }
 
   public send(data: string) {
-    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return
-    this._ws.send(data)
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return
+    this.ws.send(data)
   }
 
   private onOpen() {
@@ -92,8 +92,8 @@ export class WNPReduxWebSocket {
         this.communicationRevision = event.data.split(';')[1].split(' ')[1]
         // Check if the adapter is outdated
         const adapterVersion = event.data.split(' ')[1].split(';')[0]
-        if ((this._adapter as Adapter).gh) {
-          const githubVersion = await getGithubVersion((this._adapter as Adapter).gh)
+        if ((this.adapter as Adapter).gh) {
+          const githubVersion = await getGithubVersion((this.adapter as Adapter).gh)
           if (githubVersion === 'Error') return
           if (isVersionOutdated(adapterVersion, githubVersion)) setOutdated()
         }
@@ -106,7 +106,7 @@ export class WNPReduxWebSocket {
   }
 
   public sendUpdate(mediaInfo: MediaInfo) {
-    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return
     switch (this.communicationRevision) {
       case 'legacy':
         SendMediaInfoLegacy(this, mediaInfo)
