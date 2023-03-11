@@ -9,6 +9,11 @@ export const initPort = async () => {
   const id = getRandomToken(24)
   if (getCurrentSite() !== null)
     connect(id)
+
+  window.addEventListener('unload', () => {
+    if (!chrome.runtime.id) return
+    port?.postMessage({ event: 'disconnect' })
+  })
 }
 
 function connect(id: string) {
@@ -67,7 +72,7 @@ function OnMediaEventLegacy(message: string): keyof SiteInfo | null {
       const [positionInSeconds, positionPercentageStr] = data.split(':')
       const positionPercentage = positionPercentageStr.split('SETPROGRESS ')[1]
       site.events.setPositionSeconds?.(parseInt(positionInSeconds))
-      // We replace(',', '.') because all of legacy versions didn't use InvariantCulture
+      // We replace(',', '.') because all legacy versions didn't use InvariantCulture
       site.events.setPositionPercentage?.(parseFloat(positionPercentage.replace(',', '.')))
       updateInfo = 'position'
       break
