@@ -60,7 +60,8 @@ interface Port extends chrome.runtime.Port {
 
 chrome.runtime.onConnect.addListener((_port) => {
   const port = _port as Port
-  caches.set(port.name, new Map<string, any>())
+  if (!caches.get(port.name))
+    caches.set(port.name, new Map<string, any>())
   ports.set(port.name, port)
   port.onMessage.addListener((message) => onMessage(message, port))
   port.onDisconnect.addListener(() => {
@@ -131,5 +132,5 @@ export const initPort = async () => {
   setInterval(() => {
     for (const port of ports.values())
       port.postMessage({ event: 'getMediaInfo' })
-  }, settings.updateFrequencyMs)
+  }, settings.updateFrequencyMs2)
 }
