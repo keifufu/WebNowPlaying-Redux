@@ -81,6 +81,7 @@ chrome.runtime.onConnect.addListener((_port) => {
   })
   port._timer = setTimeout(() => {
     deleteTimer(port)
+    ports.delete(port.name)
     port.disconnect()
   }, 250e3, port)
 })
