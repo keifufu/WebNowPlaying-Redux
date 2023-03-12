@@ -68,7 +68,7 @@ export const getMediaInfo = (): Partial<MediaInfo> | null => {
   const mediaInfo: Partial<MediaInfo> = {}
   let mediaInfoChanged = false
 
-  if (!site || !site.ready()) return mediaInfo
+  if (!site || !site.ready()) return null
 
   const values: (keyof SiteInfo)[] = ['player', 'state', 'title', 'artist', 'album', 'cover', 'duration', 'position', 'volume', 'rating', 'repeat', 'shuffle']
   values.forEach((key) => {

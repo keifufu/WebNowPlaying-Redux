@@ -87,7 +87,7 @@ function onMessage(message: PortMessage, port: Port) {
       const currentMediaInfo = mediaInfoDictionary.get(port.name) ?? defaultMediaInfo
       mediaInfoDictionary.set(port.name, { ...currentMediaInfo, ...message.mediaInfo })
 
-      if (message.mediaInfo?.position && currentMediaInfo.title !== '')
+      if ((message.mediaInfo.position || message.mediaInfo.state || message.mediaInfo.title) && currentMediaInfo.title !== '')
         updateMediaInfo()
 
       updateAll()
