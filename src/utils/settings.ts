@@ -8,8 +8,11 @@ export type CustomAdapter = {
 export type TSupportedSites = 'Apple Music' | 'Bandcamp' | 'Deezer' | 'Navidrome' | 'Pandora' | 'Plex' | 'Soundcloud' | 'Spotify' | 'Tidal' | 'Twitch' | 'Youtube' | 'Youtube Embeds' | 'Youtube Music'
 export const SupportedSites: TSupportedSites[] = ['Apple Music', 'Bandcamp', 'Deezer', 'Navidrome', 'Pandora', 'Plex', 'Soundcloud', 'Spotify', 'Tidal', 'Twitch', 'Youtube', 'Youtube Embeds', 'Youtube Music']
 
+// updateFrequencyMs was previously in use as a object to store the update frequency
+// for each adapter.
+// We could either have migration code or just rename it to updateFrequencyMs2.
 export type Settings = {
-  updateFrequencyMs: number
+  updateFrequencyMs2: number
   useGeneric: boolean
   useGenericList: boolean
   isListBlocked: boolean
@@ -21,7 +24,7 @@ export type Settings = {
 }
 
 export const defaultSettings: Settings = {
-  updateFrequencyMs: 250,
+  updateFrequencyMs2: 250,
   useGeneric: false,
   useGenericList: false,
   isListBlocked: false,

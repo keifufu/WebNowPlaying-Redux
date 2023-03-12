@@ -215,9 +215,9 @@ const AdaptersPage: Component = () => {
   const { theme } = useTheme()
 
   const onInputUpdateFrequency = (e: InputEvent) => {
-    const updateFrequencyMs = parseInt((e.target as HTMLInputElement).value)
-    if (isNaN(updateFrequencyMs)) return
-    saveSettings(() => ({ ...settings(), updateFrequencyMs }))
+    const updateFrequencyMs2 = parseInt((e.target as HTMLInputElement).value)
+    if (isNaN(updateFrequencyMs2)) return
+    saveSettings(() => ({ ...settings(), updateFrequencyMs2 }))
   }
 
   return (
@@ -263,7 +263,7 @@ const AdaptersPage: Component = () => {
               `form-input mt-2 ml-2 h-6 w-[3.1rem] rounded-md border border-solid ${borderColorClass()} bg-transparent px-2 text-sm focus:ring-offset-0`,
               [theme() === 'konami' && 'placeholder:text-gray-300']
             )}
-            value={settings().updateFrequencyMs}
+            value={settings().updateFrequencyMs2}
             placeholder='ms'
           />
         </div>
