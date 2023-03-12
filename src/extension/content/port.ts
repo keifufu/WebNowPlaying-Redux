@@ -9,11 +9,6 @@ export const initPort = async () => {
   const id = getRandomToken(24)
   if (getCurrentSite() !== null)
     connect(id)
-
-  window.addEventListener('unload', () => {
-    if (!chrome.runtime.id) return
-    port?.postMessage({ event: 'disconnect' })
-  })
 }
 
 function connect(id: string) {

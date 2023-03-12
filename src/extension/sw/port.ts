@@ -4,7 +4,7 @@ import { readSettings } from './shared'
 import { WNPReduxWebSocket } from './socket'
 
 type PortMessage = {
-  event: 'mediaInfo' | 'disconnect',
+  event: 'mediaInfo',
   mediaInfo?: Partial<MediaInfo>
 }
 
@@ -13,6 +13,7 @@ const sockets: WNPReduxWebSocket[] = []
 const mediaInfoDictionary = new Map<string, MediaInfo>()
 let mediaInfoId: string | null = null
 const ports = new Map<string, chrome.runtime.Port>()
+const disconnectTimeouts = new Map<string, NodeJS.Timeout>()
 
 const updateAll = () => {
   sockets.forEach((socket) => {
@@ -59,14 +60,24 @@ interface Port extends chrome.runtime.Port {
 }
 
 chrome.runtime.onConnect.addListener((_port) => {
+  console.log('Connected to port', _port.name)
   const port = _port as Port
+  clearTimeout(disconnectTimeouts.get(port.name))
+  disconnectTimeouts.delete(port.name)
   if (!caches.get(port.name))
     caches.set(port.name, new Map<string, any>())
   ports.set(port.name, port)
   port.onMessage.addListener((message) => onMessage(message, port))
   port.onDisconnect.addListener(() => {
+    // This only gets fired if the other side disconnects, not if we disconnect from here.
     deleteTimer(port)
     ports.delete(port.name)
+    // It should reconnect immediately, 500ms is more than enough.
+    disconnectTimeouts.set(port.name, setTimeout(() => {
+      mediaInfoDictionary.delete(port.name)
+      caches.delete(port.name)
+      updateMediaInfo()
+    }, 500))
   })
   port._timer = setTimeout(() => {
     deleteTimer(port)
@@ -102,11 +113,6 @@ function onMessage(message: PortMessage, port: Port) {
       updateAll()
       break
     }
-    case 'disconnect':
-      mediaInfoDictionary.delete(port.name)
-      caches.delete(port.name)
-      updateMediaInfo()
-      break
     default: break
   }
 }
