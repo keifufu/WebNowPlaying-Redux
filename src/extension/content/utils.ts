@@ -60,8 +60,9 @@ export function getCurrentSite() {
   return null
 }
 
-let mediaInfoCache = new Map<string, any>()
-export const clearMediaInfoCache = () => mediaInfoCache = new Map<string, any>()
+const mediaInfoCache = new Map<string, any>()
+let sendFullMediaInfo = false
+export const setSendFullMediaInfo = (value: boolean) => sendFullMediaInfo = value
 export const getMediaInfo = (): Partial<MediaInfo> | null => {
   const site = getCurrentSite()
   const mediaInfo: Partial<MediaInfo> = {}
@@ -80,10 +81,20 @@ export const getMediaInfo = (): Partial<MediaInfo> | null => {
       value = value.trim()
     if (value !== null && value !== undefined && mediaInfoCache.get(key) !== value) {
       (mediaInfo[key] as any) = value
+      if (key === 'state' || key === 'title' || key === 'volume') {
+        const timestamp = Date.now()
+        mediaInfo.timestamp = timestamp
+        mediaInfoCache.set('timestamp', timestamp)
+      }
       mediaInfoCache.set(key, value)
       mediaInfoChanged = true
     }
   })
+
+  if (sendFullMediaInfo) {
+    sendFullMediaInfo = false
+    return Object.fromEntries(mediaInfoCache)
+  }
 
   if (mediaInfoChanged) return mediaInfo
   else return null

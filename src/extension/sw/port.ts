@@ -5,15 +5,14 @@ import { WNPReduxWebSocket } from './socket'
 
 type PortMessage = {
   event: 'mediaInfo',
-  mediaInfo?: Partial<MediaInfo>
+  mediaInfo: Partial<MediaInfo>
 }
 
-const caches = new Map<string, Map<string, any>>()
-const sockets: WNPReduxWebSocket[] = []
-const mediaInfoDictionary = new Map<string, MediaInfo>()
-let mediaInfoId: string | null = null
-const ports = new Map<string, chrome.runtime.Port>()
 const disconnectTimeouts = new Map<string, NodeJS.Timeout>()
+const mediaInfoDictionary = new Map<string, MediaInfo>()
+const ports = new Map<string, chrome.runtime.Port>()
+const sockets: WNPReduxWebSocket[] = []
+let mediaInfoId: string | null = null
 
 const updateAll = () => {
   sockets.forEach((socket) => {
@@ -60,12 +59,9 @@ interface Port extends chrome.runtime.Port {
 }
 
 chrome.runtime.onConnect.addListener((_port) => {
-  console.log('Connected to port', _port.name)
   const port = _port as Port
   clearTimeout(disconnectTimeouts.get(port.name))
   disconnectTimeouts.delete(port.name)
-  if (!caches.get(port.name))
-    caches.set(port.name, new Map<string, any>())
   ports.set(port.name, port)
   port.onMessage.addListener((message) => onMessage(message, port))
   port.onDisconnect.addListener(() => {
@@ -75,7 +71,6 @@ chrome.runtime.onConnect.addListener((_port) => {
     // It should reconnect immediately, 500ms is more than enough.
     disconnectTimeouts.set(port.name, setTimeout(() => {
       mediaInfoDictionary.delete(port.name)
-      caches.delete(port.name)
       updateMediaInfo()
     }, 500))
   })
@@ -89,27 +84,11 @@ chrome.runtime.onConnect.addListener((_port) => {
 function onMessage(message: PortMessage, port: Port) {
   switch (message.event) {
     case 'mediaInfo': {
-      const cache = caches.get(port.name)
-      if (!message.mediaInfo || !cache) return
-
       const currentMediaInfo = mediaInfoDictionary.get(port.name) ?? defaultMediaInfo
-      let timestamp = currentMediaInfo.timestamp
-      for (const _key in message.mediaInfo) {
-        const key = _key as keyof MediaInfo
-        if (key === 'state' || key === 'title' || key === 'volume') {
-          if (cache.get(key) !== message.mediaInfo[key]) {
-            cache.set(key, message.mediaInfo[key])
-            timestamp = Date.now()
-          }
-        }
-      }
-      mediaInfoDictionary.set(port.name, { ...currentMediaInfo, ...message.mediaInfo, timestamp })
+      mediaInfoDictionary.set(port.name, { ...currentMediaInfo, ...message.mediaInfo })
 
-      if (message.mediaInfo.position && message.mediaInfo.position !== cache.get('position')) {
-        cache.set('position', message.mediaInfo.position)
-        if (currentMediaInfo.title !== '')
-          updateMediaInfo()
-      }
+      if (message.mediaInfo?.position && currentMediaInfo.title !== '')
+        updateMediaInfo()
 
       updateAll()
       break

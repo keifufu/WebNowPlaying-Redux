@@ -1,7 +1,7 @@
 import { getRandomToken } from '../../utils/misc'
 import { ContentUtils } from '../../utils/settings'
 import { SiteInfo } from '../types'
-import { clearMediaInfoCache, getCurrentSite, getMediaInfo } from './utils'
+import { getCurrentSite, getMediaInfo, setSendFullMediaInfo } from './utils'
 
 let port: chrome.runtime.Port
 export const initPort = async () => {
@@ -13,7 +13,7 @@ export const initPort = async () => {
 
 function connect(id: string) {
   if (!chrome.runtime.id) return
-  clearMediaInfoCache()
+  setSendFullMediaInfo(true)
   port = chrome.runtime.connect({ name: id })
   port.onDisconnect.addListener(() => connect(id))
   port.onMessage.addListener(onMessage)
