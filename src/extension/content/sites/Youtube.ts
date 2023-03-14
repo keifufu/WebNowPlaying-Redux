@@ -1,56 +1,25 @@
-import { timeInSecondsToString } from '../../../utils/misc'
+import { getMediaSessionCover, timeInSecondsToString } from '../../../utils/misc'
 import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
 import { ratingUtils } from '../utils'
 
-// TODO: support the tiny player it sometimes gives you in the bottom right corner
-
-let currentCoverUrl = ''
-let lastCoverVideoId = ''
-
-// I'm not using mediaSession here because of ads.
-// Of course this isn't an issue with YouTube Premium or adblock, but still.
+// Note: keep using with mediaSession as it makes it easier to implement yt shorts
 const site: Site = {
-  ready: () => querySelector<boolean, HTMLElement>('.ytd-video-primary-info-renderer.title', (el) => el.innerText.length > 0, false),
+  ready: () => navigator.mediaSession.metadata !== null,
   info: {
     player: () => 'YouTube',
-    state: () => {
-      let state = querySelectorReport<StateMode, HTMLVideoElement>('.html5-main-video', (el) => (el.paused ? StateMode.PAUSED : StateMode.PLAYING), StateMode.PAUSED, 'state')
-      // It is possible for the video to be "playing" but not started
-      if (state === StateMode.PLAYING && querySelector<boolean, HTMLVideoElement>('.html5-main-video', (el) => el.played.length <= 0, false))
-        state = StateMode.PAUSED
-      return state
-    },
-    title: () => querySelectorReport<string, HTMLElement>('.ytd-video-primary-info-renderer.title', (el) => el.innerText, '', 'title'),
-    artist: () => querySelectorReport<string, HTMLElement>('.ytd-video-secondary-info-renderer .ytd-channel-name a', (el) => el.innerText, '', 'artist'),
-    album: () => querySelector<string, HTMLElement>('#header-description a', (el) => el.innerText, ''),
-    cover: () => {
-      const videoId = new URLSearchParams(window.location.search).get('v')
-
-      if (videoId && lastCoverVideoId !== videoId) {
-        lastCoverVideoId = videoId
-        const img = document.createElement('img')
-        img.setAttribute('src', `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`)
-        img.addEventListener('load', () => {
-          if (img.height > 90)
-            currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`
-          else
-            currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
-        })
-        img.addEventListener('error', () => {
-          currentCoverUrl = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`
-        })
-      }
-
-      return currentCoverUrl
-    },
+    state: () => querySelectorReport<StateMode, HTMLVideoElement>('.html5-main-video', (el) => (el.paused ? StateMode.PAUSED : StateMode.PLAYING), StateMode.PAUSED, 'state'),
+    title: () => navigator.mediaSession.metadata?.title || '',
+    artist: () => navigator.mediaSession.metadata?.artist || '',
+    album: () => navigator.mediaSession.metadata?.album || '',
+    cover: () => getMediaSessionCover(),
     duration: () => querySelectorReport<string, HTMLVideoElement>('.html5-main-video', (el) => timeInSecondsToString(el.duration), '0:00', 'duration'),
     position: () => querySelectorReport<string, HTMLVideoElement>('.html5-main-video', (el) => timeInSecondsToString(el.currentTime), '0:00', 'position'),
     volume: () => querySelectorReport<number, HTMLVideoElement>('.html5-main-video', (el) => (el.muted ? 0 : el.volume * 100), 100, 'volume'),
     rating: () => {
-      const likeButtonPressed = querySelectorReport<boolean, HTMLButtonElement>('#segmented-like-button button', (el) => el.getAttribute('aria-pressed') === 'true', false, 'rating')
+      const likeButtonPressed = querySelectorReport<boolean, HTMLButtonElement>('#segmented-like-button button, #like-button button', (el) => el.getAttribute('aria-pressed') === 'true', false, 'rating')
       if (likeButtonPressed) return 5
-      const dislikeButtonPressed = querySelectorReport<boolean, HTMLButtonElement>('#segmented-dislike-button button', (el) => el.getAttribute('aria-pressed') === 'true', false, 'rating')
+      const dislikeButtonPressed = querySelectorReport<boolean, HTMLButtonElement>('#segmented-dislike-button button, #dislike-button button', (el) => el.getAttribute('aria-pressed') === 'true', false, 'rating')
       if (dislikeButtonPressed) return 1
       return 0
     },
@@ -65,12 +34,13 @@ const site: Site = {
     shuffle: () => querySelector<boolean, HTMLButtonElement>('(#playlist-action-menu button)[1]', (el) => el.getAttribute('aria-pressed') === 'true', false)
   },
   events: {
-    togglePlaying: () => querySelectorEventReport<HTMLButtonElement>('.ytp-play-button', (el) => el.click(), 'togglePlaying'),
-    next: () => querySelectorEventReport<HTMLButtonElement>('.ytp-next-button', (el) => el.click(), 'next'),
+    togglePlaying: () => querySelectorEventReport<HTMLVideoElement>('.html5-main-video', (el) => (el.paused ? el.play() : el.pause()), 'togglePlaying'),
+    next: () => querySelectorEventReport<HTMLButtonElement>('.ytp-next-button, #navigation-button-down button', (el) => el.click(), 'next'),
     previous: () => {
       querySelectorEventReport<HTMLVideoElement>('.html5-main-video', (el) => {
         if (el.currentTime > 5) el.currentTime = 0
-        else querySelectorEventReport<HTMLButtonElement>('.ytp-prev-button', (el) => el.click(), 'previous')
+        // Not reporting as up button is not always present
+        else querySelectorEvent<HTMLButtonElement>('.ytp-prev-button, #navigation-button-up button', (el) => el.click())
       }, 'previous')
     },
     setPositionSeconds: (positionInSeconds: number) => querySelectorEventReport<HTMLVideoElement>('.html5-main-video', (el) => el.currentTime = positionInSeconds, 'setPositionSeconds'),
@@ -91,8 +61,8 @@ const site: Site = {
       if (!success) querySelectorEventReport<HTMLVideoElement>('.html5-main-video', (el) => el.loop = !el.loop, 'toggleRepeat')
     },
     toggleShuffle: () => querySelectorEvent<HTMLButtonElement>('(#playlist-action-menu button)[1]', (el) => el.click()),
-    toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('#segmented-like-button button', (el) => el.click(), 'toggleThumbsUp'),
-    toggleThumbsDown: () => querySelectorEventReport<HTMLButtonElement>('#segmented-dislike-button button', (el) => el.click(), 'toggleThumbsDown'),
+    toggleThumbsUp: () => querySelectorEventReport<HTMLButtonElement>('#segmented-like-button button, #like-button button', (el) => el.click(), 'toggleThumbsUp'),
+    toggleThumbsDown: () => querySelectorEventReport<HTMLButtonElement>('#segmented-dislike-button button, #dislike-button button', (el) => el.click(), 'toggleThumbsDown'),
     setRating: (rating: number) => ratingUtils.likeDislike(site, rating)
   }
 }
