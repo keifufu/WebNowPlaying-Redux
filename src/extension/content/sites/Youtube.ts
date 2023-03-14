@@ -6,7 +6,7 @@ import { ratingUtils } from '../utils'
 // Note: keep using mediaSession as it makes it easier to implement yt shorts
 // There can also be multiple .html5-main-video elements, so we need to check if they have a src attribute
 const site: Site = {
-  ready: () => navigator.mediaSession.metadata !== null,
+  ready: () => navigator.mediaSession.metadata !== null && querySelector<boolean, HTMLVideoElement>('.html5-main-video[src]', (el) => true, false),
   info: {
     player: () => 'YouTube',
     state: () => querySelectorReport<StateMode, HTMLVideoElement>('.html5-main-video[src]', (el) => (el.paused ? StateMode.PAUSED : StateMode.PLAYING), StateMode.PAUSED, 'state'),
