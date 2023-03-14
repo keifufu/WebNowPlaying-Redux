@@ -3,7 +3,7 @@ import { RepeatMode, Site, StateMode } from '../../types'
 import { querySelector, querySelectorEvent, querySelectorEventReport, querySelectorReport } from '../selectors'
 import { ratingUtils } from '../utils'
 
-// Note: keep using with mediaSession as it makes it easier to implement yt shorts
+// Note: keep using mediaSession as it makes it easier to implement yt shorts
 const site: Site = {
   ready: () => navigator.mediaSession.metadata !== null,
   info: {
