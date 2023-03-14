@@ -4,6 +4,7 @@ import { querySelector, querySelectorEvent, querySelectorEventReport, querySelec
 import { ratingUtils } from '../utils'
 
 // Note: keep using mediaSession as it makes it easier to implement yt shorts
+// There can also be multiple .html5-main-video elements, so we need to check if they have a src attribute
 const site: Site = {
   ready: () => navigator.mediaSession.metadata !== null,
   info: {
